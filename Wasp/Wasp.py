@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # title           :wasp.py
 #description     :3D Slicer plugin to perform watershed and annotation
 #author          :Thomas lawson (MRC)
@@ -31,9 +30,9 @@ class Wasp:
         parent.helpText = """
         A module to perform a series of ITK watershed segmentation (without seeds) and then let the user create a label map out of selected components.
 	
-	An isosurface model will also be generated.
+	    An isosurface model will also be generated.
 
-	"""
+        """
         parent.acknowledgementText = """
         MRC Harwell, Oxfordshire
 
@@ -1408,4 +1407,3 @@ class WaspTest(ScriptedLoadableModuleTest):
     logic = WaspLogic()
     self.assertTrue( logic.hasImageData(volumeNode) )
     self.delayDisplay('Test passed!')
->>>>>>> c48e4ccebe2ca17159b088df8495565cc209a7ed
