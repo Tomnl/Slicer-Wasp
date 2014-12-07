@@ -544,7 +544,7 @@ class WaspLogic:
 
         # this filter is persistent, remove commands
         print "done"
-        self.main_queue.put(self.main_queue_stop)
+        #self.main_queue.put(self.main_queue_stop)
 
     def runAnn(self, fiducialNode, outputVolumeNode, refNode):
         """ Run the annotation section.
@@ -684,7 +684,7 @@ class WaspLogic:
 
                 self.main_queue.put(lambda: widget.delayDisplay(err, msec=100000))
                 self.yieldPythonGIL()
-                self.main_queue.put(self.main_queue_stop)
+                #self.main_queue.put(self.main_queue_stop)
                 slicer.modules.WaspWidget.progressHide()
                 return
             else:
@@ -746,7 +746,7 @@ class WaspLogic:
         slicer.modules.WaspWidget.progressHide()
 
         # This will make sure all queue items (dialog box and simpleitk stuff) will be removed.
-        self.main_queue.put(self.main_queue_stop)
+        #self.main_queue.put(self.main_queue_stop)
 
         return 0
 
