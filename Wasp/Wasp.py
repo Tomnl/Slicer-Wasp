@@ -114,27 +114,27 @@ class WaspWidget:
         # ##################################################
         # # Reload and testing (only used for development)
         # ##################################################
-        # self.reloadCollapsibleButton = ctk.ctkCollapsibleButton()
-        # self.reloadCollapsibleButton.text = "Reload && Test"
-        # self.layout.addWidget(self.reloadCollapsibleButton)
-        # self.reloadFormLayout = qt.QFormLayout(self.reloadCollapsibleButton)
-        #
-        # # reload button
-        # # (use this during development, but remove it when delivering
-        # #  your module to users)
-        # self.reloadButton = qt.QPushButton("Reload")
-        # self.reloadButton.toolTip = "Reload this module."
-        # self.reloadButton.name = "test Reload"
-        # self.reloadFormLayout.addWidget(self.reloadButton)
-        # self.reloadButton.connect('clicked()', self.onReload)
-        #
-        # # reload and test button
-        # # (use this during development, but remove it when delivering
-        # #  your module to users)
-        # self.reloadAndTestButton = qt.QPushButton("Reload and Test")
-        # self.reloadAndTestButton.toolTip = "Reload this module and then run the self tests."
-        # self.reloadFormLayout.addWidget(self.reloadAndTestButton)
-        # self.reloadAndTestButton.connect('clicked()', self.onReloadAndTest)
+        self.reloadCollapsibleButton = ctk.ctkCollapsibleButton()
+        self.reloadCollapsibleButton.text = "Reload && Test"
+        self.layout.addWidget(self.reloadCollapsibleButton)
+        self.reloadFormLayout = qt.QFormLayout(self.reloadCollapsibleButton)
+
+        # reload button
+        # (use this during development, but remove it when delivering
+        #  your module to users)
+        self.reloadButton = qt.QPushButton("Reload")
+        self.reloadButton.toolTip = "Reload this module."
+        self.reloadButton.name = "test Reload"
+        self.reloadFormLayout.addWidget(self.reloadButton)
+        self.reloadButton.connect('clicked()', self.onReload)
+
+        # reload and test button
+        # (use this during development, but remove it when delivering
+        #  your module to users)
+        self.reloadAndTestButton = qt.QPushButton("Reload and Test")
+        self.reloadAndTestButton.toolTip = "Reload this module and then run the self tests."
+        self.reloadFormLayout.addWidget(self.reloadAndTestButton)
+        self.reloadAndTestButton.connect('clicked()', self.onReloadAndTest)
 
 
 
@@ -346,7 +346,7 @@ class WaspWidget:
         Method called when the Cancel button is pressed in either the annotation or watershed section. Cancels
         all processes. Doesn't currently stop model making.
         """
-        self.currentStatusLabel.setText("Aborted")
+        self.currentStatusLabel.setText("Aborting")
         self.progress.hide()
         if self.logic:
             self.logic.abort = True
@@ -428,7 +428,6 @@ class WaspLogic:
         """ Initialises queues and abort switch """
         self.main_queue = Queue.Queue()
         self.main_queue_running = False
-        self.thread = threading.Thread()
         self.abort = False
 
     def __del__(self):
@@ -489,11 +488,11 @@ class WaspLogic:
         self.filterBy = filterBy
 
         # Start the thread (so can run in the background)
-        self.thread = threading.Thread(target=lambda: self.threadWS())
-        self.main_queue_start()
+        self.thread = threading.Thread(target = self.threadWS)
         self.thread.start()
 
-        return True
+        self.main_queue_start()
+
 
 
     def threadWS(self):
@@ -502,11 +501,13 @@ class WaspLogic:
         Uses SimpleITK for the processing.
         """
         nIter = 0
-        #####################################
+        ####################################
         # Reading in image
-        #####################################
+        ####################################
         slicer.modules.WaspWidget.updateStatusLabel("Reading image in")
         sitkReader = sitk.ImageFileReader()
+        sitkReader.SetDebug(False)
+        sitkReader.SetNumberOfThreads(1)
         sitkReader = self.sitkProgress(sitkReader, "reading")
         sitkReader.SetFileName(sitkUtils.GetSlicerITKReadWriteAddress(self.imgNodeName))
         img = sitkReader.Execute()
@@ -516,7 +517,14 @@ class WaspLogic:
         #####################################
         print "doing gradient"
         feature_img = self.gradientFilter(img)
-        self.makeSlicerObject(feature_img, ("gradient_mag"), label=False)
+        # self.main_queue.put(lambda: self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
+        self.main_queue.put(self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
+        self.yieldPythonGIL()
+
+        if self.abort:
+            print "aborted after gradient"
+            return
+
 
         #####################################
         # Performing watershed loop
@@ -529,6 +537,7 @@ class WaspLogic:
         for y in ws_list:
 
             if self.abort:
+                print "abort in loop"
                 return
 
             sitk_ws = self.wsFilter(feature_img, y)
@@ -536,15 +545,26 @@ class WaspLogic:
             # relabel
             sitk_relabel = self.relabelFilter(sitk_ws)
 
+            # remove the sitk object from memory
+            sitk_ws = None
+
+
+            print y
             # sitk to slicer conversion
-            self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True)
+            # self.main_queue.put(lambda: self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True))
+            self.main_queue.put(self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True))
+            self.yieldPythonGIL()
+
+        # remove the sitk objects from memory
+        feature_img = img =  None
+
+
+        # this filter is persistent, remove commands
+        self.main_queue.put(self.main_queue_stop)
 
         slicer.modules.WaspWidget.progressHide()
         slicer.modules.WaspWidget.updateStatusLabel("Idle")
-
-        # this filter is persistent, remove commands
         print "done"
-        #self.main_queue.put(self.main_queue_stop)
 
     def runAnn(self, fiducialNode, outputVolumeNode, refNode):
         """ Run the annotation section.
@@ -684,7 +704,7 @@ class WaspLogic:
 
                 self.main_queue.put(lambda: widget.delayDisplay(err, msec=100000))
                 self.yieldPythonGIL()
-                #self.main_queue.put(self.main_queue_stop)
+                self.main_queue.put(self.main_queue_stop)
                 slicer.modules.WaspWidget.progressHide()
                 return
             else:
@@ -746,7 +766,7 @@ class WaspLogic:
         slicer.modules.WaspWidget.progressHide()
 
         # This will make sure all queue items (dialog box and simpleitk stuff) will be removed.
-        #self.main_queue.put(self.main_queue_stop)
+        self.main_queue.put(self.main_queue_stop)
 
         return 0
 
@@ -912,9 +932,9 @@ class WaspLogic:
 
         grad_filter = sitk.GradientMagnitudeRecursiveGaussianImageFilter()
         grad_filter.SetSigma(self.gradSig)
-        grad_filter.SetNumberOfThreads(8)
+        grad_filter.SetNumberOfThreads(3)
 
-        grad_filter = self.sitkProgress(grad_filter, "gradient")
+        grad_filter = self.sitkProgress(grad_filter, "gradient_filter")
 
         feature_img = grad_filter.Execute(img)
 
@@ -936,13 +956,22 @@ class WaspLogic:
         ws_filter.SetLevel(float(ws_level))
         ws_filter.SetMarkWatershedLine(True)
         ws_filter.SetFullyConnected(False)
-        ws_filter.SetNumberOfThreads(8)
+        ws_filter.SetDebug(False)
+        ws_filter.SetNumberOfThreads(1)
+
         ws_filter = self.sitkProgress(ws_filter, "watershed")
-
         sitk_ws = ws_filter.Execute(feature_img)
-
         slicer.modules.WaspWidget.progressHide()
         return sitk_ws
+
+
+
+
+
+
+
+
+
 
     def relabelFilter(self, sitk_ws):
         """ Relabel the components in an object. Largest first. Filters out smaller components based on the
@@ -953,14 +982,15 @@ class WaspLogic:
         """
         slicer.modules.WaspWidget.updateStatusLabel("Relabelling components")
         relabel_filter = sitk.RelabelComponentImageFilter()
+        relabel_filter.SetNumberOfThreads(1)
         relabel_filter.SetMinimumObjectSize(int(self.filterBy))
 
-        relabel_filter = self.sitkProgress(relabel_filter, "relabel")
+        # relabel_filter = self.sitkProgress(relabel_filter, "relabel")
         sitk_relabel = relabel_filter.Execute(sitk_ws)
 
         return sitk_relabel
 
-    def makeSlicerObject(self, sitk_img, name, label):
+    def makeSlicerObject(self, sitk_img, name, label,end=False):
         """ Make simpleITK object into slicer object
 
         :param obj sitk_img: SimpleITK image object
@@ -972,6 +1002,7 @@ class WaspLogic:
         slice_vol = slicer.vtkMRMLScalarVolumeNode()
         slice_vol.SetScene(slicer.mrmlScene)
         slice_vol.SetName(name)
+        print "check name", name
 
         # check if it is to be a label map
         if label == True:
@@ -980,12 +1011,18 @@ class WaspLogic:
         # Add to scene
         slicer.mrmlScene.AddNode(slice_vol)
 
-        # get the node address
+        # # get the node address
         outputNodeName = slice_vol.GetName()
         nodeWriteAddress = sitkUtils.GetSlicerITKReadWriteAddress(outputNodeName)
-
-        # simpleitk can now write to that node address
+        #
+        # # simpleitk can now write to that node address
         sitk.WriteImage(sitk_img, nodeWriteAddress)
+
+        slice_vol.UnRegister(slicer.mrmlScene)
+
+        sitk_img = None
+
+
 
     def sitkProgress(self, sitk_object, name):
         """ Setup the simpleitk filter object so that it will update with progress
@@ -996,13 +1033,22 @@ class WaspLogic:
         """
         sitk_object.AddCommand(sitk.sitkProgressEvent, lambda: self.cmdProgressEvent(sitk_object, name))
         sitk_object.AddCommand(sitk.sitkStartEvent, lambda: self.cmdStartEvent(sitk_object))
-        #sitk_object.AddCommand(sitk.sitkIterationEvent, lambda: self.cmdIterationEvent(sitk_object,nIter))
+        # sitk_object.AddCommand(sitk.sitkIterationEvent, lambda: self.cmdIterationEvent(sitk_object,nIter))
         sitk_object.AddCommand(sitk.sitkAbortEvent, lambda: self.cmdAbortEvent(sitk_object))
         sitk_object.AddCommand(sitk.sitkEndEvent, lambda: self.cmdEndEvent())
         return sitk_object
 
     def yieldPythonGIL(self, seconds=0):
         sleep(seconds)
+
+    def cmdIterationEvent(self, sitkFilter, nIter):
+        print "cmIterationEvent"
+        widget = slicer.modules.WaspWidget
+        self.main_queue.put(lambda: widget.onLogicEventIteration(nIter))
+        ++nIter;
+        self.cmdCheckAbort(sitkFilter)
+        self.yieldPythonGIL()
+
 
     def cmdStartEvent(self, sitkFilter):
         #print "cmStartEvent"
@@ -1013,9 +1059,10 @@ class WaspLogic:
     def cmdCheckAbort(self, sitkFilter):
         if self.abort:
             sitkFilter.Abort()
+            print "cmdCheckAbort"
 
     def cmdProgressEvent(self, sitkFilter, name):
-        #print "cmProgressEvent", sitkFilter.GetProgress()
+        # print "cmProgressEvent", sitkFilter.GetProgress()
         self.main_queue.put(
             lambda p=sitkFilter.GetProgress(), n=name: slicer.modules.WaspWidget.onLogicEventProgress(p, n))
         self.cmdCheckAbort(sitkFilter)
@@ -1023,6 +1070,7 @@ class WaspLogic:
 
     def cmdAbortEvent(self, sitkFilter):
         print "cmAbortEvent"
+        sitkFilter.Abort()
         widget = slicer.modules.WaspWidget
         self.main_queue.put(lambda: widget.onLogicEventAbort())
         self.yieldPythonGIL()
@@ -1043,15 +1091,15 @@ class WaspLogic:
         self.main_queue_running = False
         if self.thread.is_alive():
             self.thread.join()
-            #slicer.modules.SimpleFiltersWidget.onLogicRunStop()
+        # slicer.modules.SimpleFiltersWidget.onLogicRunp()
 
     def main_queue_process(self):
         """processes the main_queue of callables"""
         try:
             while not self.main_queue.empty():
-                f = self.main_queue.get_nowait()
-                if callable(f):
-                    f()
+               f = self.main_queue.get_nowait()
+               if callable(f):
+                  f()
 
             if self.main_queue_running:
                 # Yield the GIL to allow other thread to do some python work.
@@ -1059,8 +1107,9 @@ class WaspLogic:
                 self.yieldPythonGIL(.01)
                 qt.QTimer.singleShot(0, self.main_queue_process)
 
+
         except Exception as e:
-            #import sys
+            import sys
             sys.stderr.write("FilterLogic error in main_queue: \"{0}\"".format(e))
 
             # if there was an error try to resume
