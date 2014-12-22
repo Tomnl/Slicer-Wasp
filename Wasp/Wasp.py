@@ -1,7 +1,7 @@
 # title           :wasp.py
 #description     :3D Slicer plugin to perform watershed and annotation
 #author          :Thomas lawson (MRC)
-#date            :2014-09-25
+#date            :2014-12-22
 #usage           :To be run IN 3D slicer. Cannot be run outside of 3D Slicer
 #formatting      :As many of the functions and classes used are from C++, the C++ naming convention has been used
 #python_version  :2.7

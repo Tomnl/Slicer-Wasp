@@ -11,7 +11,7 @@ set(EXTENSION_DESCRIPTION "A module to perform a series of ITK watershed segment
 
 An isosurface model will also be generated.
 ")
-set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/Slicer-Wasp.png")
+set(EXTENSION_ICONURL "http://www.slicer.org/slicerWiki/images/5/5b/Slicer-Wasp.png")
 set(EXTENSION_SCREENSHOTURLS "http://wiki.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/Wasp")
 
 #-----------------------------------------------------------------------------
