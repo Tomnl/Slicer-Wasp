@@ -1190,14 +1190,14 @@ class WaspTest(unittest.TestCase):
                 self.assertTrue(logic.hasImageData(volumeNode))
                 self.delayDisplay('Test passed!')
 
-                self.delayDisplay("logic test")
-                logic.runWS(volumeNode,
-                            1.2,
-                            0.01,
-                            0.01,
-                            0.03,
-                            10)
-                self.delayDisplay('Test passed!')
+                # self.delayDisplay("logic test")
+                # logic.runWS(volumeNode,
+                #             1.2,
+                #             0.01,
+                #             0.01,
+                #             0.03,
+                #             10)
+                # self.delayDisplay('Test passed!')
 
 
 
