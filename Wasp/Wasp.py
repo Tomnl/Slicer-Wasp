@@ -520,8 +520,9 @@ class WaspLogic:
         #####################################
         print "doing gradient"
         feature_img = self.gradientFilter(img)
-        # self.main_queue.put(lambda: self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
-        self.main_queue.put(self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
+        # self.makeSlicerObject(feature_img, ("gradient_mag"), label=True)
+        self.main_queue.put(lambda: self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
+        # self.main_queue.put(self.makeSlicerObject(feature_img, ("gradient_mag"), label=False))
         self.yieldPythonGIL()
 
         if self.abort:
@@ -534,6 +535,8 @@ class WaspLogic:
         #####################################
         #numpy array of ws levels
         ws_list = np.arange(self.minValue, (self.maxValue + float(self.iteration)), float(self.iteration))
+
+        self.ws_list_4_slicer_obj = ws_list
         print "ws levels:", ws_list
 
         # Loop through the range of watershed values choosen
@@ -554,8 +557,9 @@ class WaspLogic:
 
             print y
             # sitk to slicer conversion
-            # self.main_queue.put(lambda: self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True))
-            self.main_queue.put(self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True))
+            # self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True)
+            self.main_queue.put(lambda: self.makeSlicerObject(sitk_relabel, ("ws_level"), label=True))
+            # self.main_queue.put(self.makeSlicerObject(sitk_relabel, ("ws_level" + str(y)), label=True))
             self.yieldPythonGIL()
 
         # remove the sitk objects from memory
@@ -1000,10 +1004,17 @@ class WaspLogic:
         :param str name: What the slicer object should be called
         :param bool label: True if label map. False if normal volume
         """
+
         # Get a slicer volume node ready
         slicer.modules.WaspWidget.updateStatusLabel("Converting sitk image into slicer object")
         slice_vol = slicer.vtkMRMLScalarVolumeNode()
         slice_vol.SetScene(slicer.mrmlScene)
+        if name == "ws_level":
+            level = self.ws_list_4_slicer_obj[0]
+            name = name+str(level)
+            self.ws_list_4_slicer_obj = np.delete(self.ws_list_4_slicer_obj, [0])
+            print self.ws_list_4_slicer_obj
+
         slice_vol.SetName(name)
         print "check name", name
 
