@@ -1035,6 +1035,7 @@ class WaspLogic:
         slice_vol.UnRegister(slicer.mrmlScene)
 
         sitk_img = None
+        slicer.modules.WaspWidget.updateStatusLabel("")
 
 
 
