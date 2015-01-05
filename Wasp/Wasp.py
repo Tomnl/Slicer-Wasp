@@ -494,6 +494,8 @@ class WaspLogic:
         self.thread = threading.Thread(target = self.threadWS)
         self.thread.start()
 
+        # The self.threadWS puts other threads into the main_queue as it goes along. Tried to follow the SimpleFilters
+        # python scripted module. (The way I have done it is probably more complicated than it needs to be!)
         self.main_queue_start()
 
 
@@ -553,7 +555,6 @@ class WaspLogic:
 
             # remove the sitk object from memory
             sitk_ws = None
-
 
             print y
             # sitk to slicer conversion
@@ -975,11 +976,6 @@ class WaspLogic:
 
 
 
-
-
-
-
-
     def relabelFilter(self, sitk_ws):
         """ Relabel the components in an object. Largest first. Filters out smaller components based on the
         parameter found in self.filterBy
@@ -1009,14 +1005,16 @@ class WaspLogic:
         slicer.modules.WaspWidget.updateStatusLabel("Converting sitk image into slicer object")
         slice_vol = slicer.vtkMRMLScalarVolumeNode()
         slice_vol.SetScene(slicer.mrmlScene)
+
         if name == "ws_level":
+            # Name is taken from the ws_level array. Reduces the array as it goes along. Not very elegant but for
+            # reason putting the full name into the function was not working.
             level = self.ws_list_4_slicer_obj[0]
             name = name+str(level)
             self.ws_list_4_slicer_obj = np.delete(self.ws_list_4_slicer_obj, [0])
             print self.ws_list_4_slicer_obj
 
         slice_vol.SetName(name)
-        print "check name", name
 
         # check if it is to be a label map
         if label == True:
