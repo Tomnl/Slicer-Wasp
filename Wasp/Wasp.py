@@ -254,7 +254,7 @@ class WaspWidget:
         self.outputSelector = qt.QLabel("Output Annotated label map: ", self.outputFrame)
         self.outputFrame.layout().addWidget(self.outputSelector)
         self.outputSelector = slicer.qMRMLNodeComboBox(self.outputFrame)
-        self.outputSelector.nodeTypes = ["vtkMRMLScalarVolumeNode"]
+        self.outputSelector.nodeTypes = ["vtkMRMLLabelMapVolumeNode"]
         self.outputSelector.addEnabled = True
         self.outputSelector.removeEnabled = True
         self.outputSelector.renameEnabled = True
@@ -760,7 +760,6 @@ class WaspLogic:
 
         #turn sitk object into
         print "make slicer object"
-        outputVolumeNode.LabelMapOn()
         nodeWriteAddress = sitkUtils.GetSlicerITKReadWriteAddress(outputVolumeNode.GetName())
 
         print "writing"
@@ -1003,7 +1002,12 @@ class WaspLogic:
 
         # Get a slicer volume node ready
         slicer.modules.WaspWidget.updateStatusLabel("Converting sitk image into slicer object")
-        slice_vol = slicer.vtkMRMLScalarVolumeNode()
+        # check if it is to be a label map
+        slice_vol = None
+        if label == True:
+          slice_vol = slicer.vtkMRMLLabelMapVolumeNode()
+        else:
+          slice_vol = slicer.vtkMRMLScalarVolumeNode()
         slice_vol.SetScene(slicer.mrmlScene)
 
         if name == "ws_level":
@@ -1015,10 +1019,6 @@ class WaspLogic:
             print self.ws_list_4_slicer_obj
 
         slice_vol.SetName(name)
-
-        # check if it is to be a label map
-        if label == True:
-            slice_vol.LabelMapOn()
 
         # Add to scene
         slicer.mrmlScene.AddNode(slice_vol)
