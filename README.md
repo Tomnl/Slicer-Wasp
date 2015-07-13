@@ -1,3 +1,17 @@
+IMPORTANT PLEASE READ
+====
+There has been a change in one of the core modules for Slicer. Some small changes in the WASP code were made to accommodate this.
+
+I have tested the nightly version Slicer-4.4.0-2015-07-10 for linux and windows and it seems to work fine.
+
+But if you are using the stable 4.4.0 version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo.
+
+```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
+
+It should work as normal after the additional git command.
+
+
+
 WASP
 ====
 
@@ -8,15 +22,6 @@ The plugin consists of two main components
 * Watershed stage: Perform a series of watershed filters on the original image
 * Annotation stage: Creating a new label map out of selected components from the watershed stage
 
-NOTE: There has been a change in one of the core modules for Slicer. Some small changes in the WASP code were made to accommodate this.
-
-I have tested the nightly version Slicer-4.4.0-2015-07-10-linux-amd64 and it seems to work fine.
-
-If you are using the stable 4.4.0 version then use the following git command after you have cloned the repo.
-
-```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
-
-Watershed stage
 ----
 
 It allows the user to perform a series of Watershed segmentations on a 3D image using the SimpleITK “Morphological Watershed” without seeds.
