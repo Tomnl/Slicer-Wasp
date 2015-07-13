@@ -1,4 +1,4 @@
-IMPORTANT PLEASE READ
+IMPORTANT: Please read
 ====
 There has been a change in one of the core modules for Slicer. Some small changes in the WASP code were made to accommodate this.
 
@@ -22,6 +22,7 @@ The plugin consists of two main components
 * Watershed stage: Perform a series of watershed filters on the original image
 * Annotation stage: Creating a new label map out of selected components from the watershed stage
 
+Watershed stage
 ----
 
 It allows the user to perform a series of Watershed segmentations on a 3D image using the SimpleITK “Morphological Watershed” without seeds.
