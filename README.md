@@ -12,7 +12,7 @@ NOTE: There has been a change in one of the core modules for Slicer. Some small 
 
 I have tested the nightly version Slicer-4.4.0-2015-07-10-linux-amd64 and it seems to work fine.
 
-If you are using the stable 4.4.0 version then use the following git command after you have pulled the repo.
+If you are using the stable 4.4.0 version then use the following git command after you have cloned the repo.
 
 ```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
 
