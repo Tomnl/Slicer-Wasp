@@ -1,26 +1,15 @@
-IMPORTANT: Please read
-====
-There has been a change in one of the core modules for Slicer. Some small changes in the WASP code were made to accommodate this.
-
-I have tested the nightly version Slicer-4.4.0-2015-07-10 for linux and windows and it seems to work fine.
-
-See the below link for the Linux/Windows installers for this version of Slicer
-
-https://www.dropbox.com/sh/xu6e9wwydnv341m/AADiXr-uQka4xhPBg5ccCDpMa?dl=0
-
-
-But if you are using the stable 4.4.0 version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo.
-
-```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
-
-It should work as normal after the additional git command.
-
-
-
 WASP
 ====
 
 Watershed Annotation and Segmentation Plugin for 3D Slicer
+
+Documentation: [Wiki ](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp),[Youtube] (https://www.youtube.com/watch?v=o9DA4gqWNjg&feature=youtu.be)
+
+
+
+WASP is now available to install straight from the 3D Slicer [Extension manager](https://www.slicer.org/slicerWiki/index.php/Documentation/4.5/SlicerApplication/ExtensionsManager). 
+
+
 
 The plugin consists of two main components
 
@@ -47,4 +36,17 @@ The user can then select individual segmentations out of any of the watershed pr
 This will create a new label map with only the components the user has chosen. The user can also choose the order of the labels as well.
 
 A model of the label map is generated as well.
+
+Working versions
+====
+The current version of WASP has been tested and should work with the 3D Slicer 4.5 stable release. 
+
+The last nightly version checked was on Slicer-4.5.0-2015-11-26.
+
+If you are using the 3D slicer 4.4 stable version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo and install as 
+
+```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
+
+
+
 
