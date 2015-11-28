@@ -1,14 +1,7 @@
-WASP
+[WASP](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp)
 ====
 
-Watershed Annotation and Segmentation Plugin for 3D Slicer
-
-Documentation: [Wiki ](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp),[Youtube] (https://www.youtube.com/watch?v=o9DA4gqWNjg&feature=youtu.be)
-
-
-
-WASP is now available to install straight from the 3D Slicer [Extension manager](https://www.slicer.org/slicerWiki/index.php/Documentation/4.5/SlicerApplication/ExtensionsManager). 
-
+Watershed Annotation and Segmentation Plugin for 3D Slicer. For documentation see [Wiki ](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp) and [Youtube] (https://www.youtube.com/watch?v=o9DA4gqWNjg&feature=youtu.be). Installation can be performed with the 3D Slicer [Extension manager](https://www.slicer.org/slicerWiki/index.php/Documentation/4.5/SlicerApplication/ExtensionsManager).
 
 
 The plugin consists of two main components
@@ -43,7 +36,7 @@ The current version of WASP has been tested and should work with the 3D Slicer 4
 
 The last nightly version checked was on Slicer-4.5.0-2015-11-26.
 
-If you are using the 3D slicer 4.4 stable version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo and install as 
+If you are using the 3D slicer 4.4 stable version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo and install the plugin manually (without the extension manager).
 
 ```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
 
