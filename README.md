@@ -31,7 +31,7 @@ This will create a new label map with only the components the user has chosen. T
 A model of the label map is generated as well.
 
 Working versions
-====
+----
 The current version of WASP has been tested and should work with the 3D Slicer 4.5 stable release. 
 
 The last nightly version checked was on Slicer-4.5.0-2015-11-26.
