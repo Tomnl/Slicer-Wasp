@@ -1,5 +1,13 @@
+Important for installation!
+----------
+Please use 3D Slicer version 4.5.0-1 - The 3D slicer installer for mac/windows or linux can be downloaded here https://slicer-packages.kitware.com/#collection/5f4474d0e1d8c75dfc70547e/folder/60add372ae4540bf6a89bea4
+
+And then install WASP from the extension manager.
+
 [WASP](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp)
 ====
+
+
 
 Watershed Annotation and Segmentation Plugin for 3D Slicer. For documentation see [Wiki ](http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/Wasp) and [Youtube] (https://www.youtube.com/watch?v=o9DA4gqWNjg&feature=youtu.be). Installation can be performed with the 3D Slicer [Extension manager](https://www.slicer.org/slicerWiki/index.php/Documentation/4.5/SlicerApplication/ExtensionsManager).
 
@@ -30,12 +38,8 @@ This will create a new label map with only the components the user has chosen. T
 
 A model of the label map is generated as well.
 
-Working versions
+Other working versions
 ----
-The current version of WASP has been tested and should work with the 3D Slicer 4.5 stable release. 
-
-The last nightly version checked was on Slicer-4.5.0-2015-11-26.
-
 If you are using the 3D slicer 4.4 stable version the current version of WASP will not work. You will have to use the following git command after you have cloned the repo and install the plugin manually (without the extension manager).
 
 ```git checkout 2be4696e0072359fd98c14cd390526c0ed6ab90e```
